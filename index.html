@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Celebrate Atlantis | 50 years of pride passion and people!</title>
+    <!-- Load Open Sans directly to ensure font is available immediately -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700;800&display=swap" rel="stylesheet">
+  <!-- Load the main stylesheet directly so layout & fonts work even if JS/module import fails -->
+  <link rel="stylesheet" href="/style.css">
+    <style>
+      /* Strong overrides to quickly verify the layout while debugging CSS pipeline */
+      .site-header .header-center .logo img { height: 100px !important; width: auto !important; max-height: 100px !important; }
+      .site-header .header-left svg { width: 30px !important; height: 30px !important; }
+      .menu a { font-family: 'Open Sans', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important; font-size: 16px !important; text-transform: uppercase !important; }
+      /* Ensure Facebook svg has a visible fill when stylesheet or color inheritance is missing */
+      .facebook-icon svg { fill: #1877F2; color: #1877F2; }
+      @media (max-width: 639px) {
+        .site-header .header-left { display: none !important }
+        .site-header .header-center { justify-content: flex-start !important }
+        .mobile-toggle { display: block !important }
+      }
+    </style>
+</head>
+<body class="bg-white text-gray-800 font-sans">
+    <header class="site-header">
+  <div class="header-left">
+    <a href="https://facebook.com" class="facebook-icon" aria-label="Facebook">
+      <!-- Inline Facebook 'f' icon (30x30) to avoid missing file and keep size consistent -->
+      <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor" aria-hidden="true">
+        <path d="M22 12.07C22 6.48 17.52 2 11.93 2S2 6.48 2 12.07c0 5 3.66 9.12 8.44 9.88v-6.99H8.34V12h2.1V9.8c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.77l-.44 2.89h-2.33v6.99C18.34 21.19 22 17.07 22 12.07z"/>
+      </svg>
+    </a>
+  </div>
+
+  <div class="header-center">
+    <a href="/" class="logo" aria-label="Home">
+      <img src="/assets/images/CELEBRATE ATLANTIS LOGO.png" alt="Celebrate Atlantis Logo">
+    </a>
+  </div>
+
+  <nav class="header-right" aria-label="Main navigation">
+    <button id="mobile-toggle" class="mobile-toggle" aria-controls="main-nav" aria-expanded="false" aria-label="Open menu">
+      <span class="hamburger" aria-hidden="true"></span>
+    </button>
+    <ul id="main-nav" class="menu" role="menubar">
+      <li>
+        <a href="#home">
+          <span class="ticker" aria-hidden="false">
+            <span class="label">Home</span>
+            <span class="label alt">HOME</span>
+          </span>
+        </a>
+      </li>
+      <li>
+        <a href="#about">
+          <span class="ticker" aria-hidden="false">
+            <span class="label">About</span>
+            <span class="label alt">ABOUT</span>
+          </span>
+        </a>
+      </li>
+      <li>
+        <a href="#history">
+          <span class="ticker" aria-hidden="false">
+            <span class="label">History</span>
+            <span class="label alt">HISTORY</span>
+          </span>
+        </a>
+      </li>
+      <li>
+        <a href="#gallery">
+          <span class="ticker" aria-hidden="false">
+            <span class="label">Gallery</span>
+            <span class="label alt">GALLERY</span>
+          </span>
+        </a>
+      </li>
+      <li>
+        <a href="#contact">
+          <span class="ticker" aria-hidden="false">
+            <span class="label">Contact</span>
+            <span class="label alt">CONTACT</span>
+          </span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</header>
+
+    <main>
+    <section id="home" class="hero">
+      <div class="hero-inner">
+        <div class="hero-text-wrap">
+          <h1 class="hero-text layer-a">ATLANTIS</h1>
+          <h1 class="hero-text layer-b">ATLANTIS</h1>
+        </div>
+      </div>
+    </section>
+        <section id="about" class="h-screen bg-gray-100 flex items-center justify-center">
+            <div class="about-lines" id="about-lines">
+              <div class="about-line">As the South African town of Atlantis, Western Cape,</div>
+              <div class="about-line">marks its historic 50th anniversary in 2026,</div>
+              <div class="about-line">residents celebrate a half-century of community,</div>
+              <div class="about-line">resilience, and a revitalized future as the nation's Greentech hub.</div>
+            </div>
+        </section>
+        <section id="history" class="history-section">
+          <div class="history-grid container mx-auto px-6">
+            <div class="history-year" id="history-year" aria-hidden="true">1965</div>
+
+            <div class="history-modules">
+              <article class="timeline-module" data-year="1965">
+                <h3 class="module-title">Founding & Early Settlement</h3>
+                <div class="module-image"><img src="/assets/images/ATLANTIS IMPACT (2).JPG" alt="Atlantis early years"></div>
+                <p>The first settlement of Atlantis in the Western Cape began with planned housing and industrial development that shaped the town's early character.</p>
+              </article>
+
+              <article class="timeline-module" data-year="1975">
+                <h3 class="module-title">Community Growth</h3>
+                <div class="module-image"><img src="/assets/images/ATLANTIS IMPACT (3).JPG" alt="Community growth"></div>
+                <p>Over the following decade the town expanded as new housing and community services were introduced, developing a strong local identity.</p>
+              </article>
+
+              <article class="timeline-module" data-year="1985">
+                <h3 class="module-title">Industry & Change</h3>
+                <div class="module-image"><img src="/assets/images/ATLANTIS IMPACT (4).JPG" alt="Industrial change"></div>
+                <p>Industrial shifts and economic changes impacted employment patterns, but also laid foundations for later revitalisation initiatives.</p>
+              </article>
+
+              <article class="timeline-module" data-year="2000">
+                <h3 class="module-title">Revitalisation Efforts</h3>
+                <div class="module-image"><img src="/assets/images/ATLANTIS IMPACT (5).JPG" alt="Revitalisation"></div>
+                <p>Local and national programs in the 2000s focused on infrastructure, training and investment to support a greener, resilient future.</p>
+              </article>
+
+            </div>
+          </div>
+        </section>
+        <section id="gallery" class="gallery-section bg-gray-100">
+          <div class="gallery-inner gallery-grid">
+            <div class="gallery-item">
+              <div class="wipe"><img class="gallery-thumb" src="/assets/images/ATLANTIS IMPACT (6).JPG" alt="Gallery 1"></div>
+            </div>
+            <div class="gallery-item">
+              <div class="wipe"><img class="gallery-thumb" src="/assets/images/ATLANTIS IMPACT (7).JPG" alt="Gallery 2"></div>
+            </div>
+            <div class="gallery-item">
+              <div class="wipe"><img class="gallery-thumb" src="/assets/images/ATLANTIS IMPACT (8).JPG" alt="Gallery 3"></div>
+            </div>
+            <div class="gallery-item">
+              <div class="wipe"><img class="gallery-thumb" src="/assets/images/ATLANTIS IMPACT (9).JPG" alt="Gallery 4"></div>
+            </div>
+            <div class="gallery-item">
+              <div class="wipe"><img class="gallery-thumb" src="/assets/images/ATLANTIS IMPACT (10).JPG" alt="Gallery 5"></div>
+            </div>
+            <div class="gallery-item">
+              <div class="wipe"><img class="gallery-thumb" src="/assets/images/ATLANTIS IMPACT (11).JPG" alt="Gallery 6"></div>
+            </div>
+            <div class="gallery-item">
+              <div class="wipe"><img class="gallery-thumb" src="/assets/images/ATLANTIS IMPACT (1).jpg" alt="Gallery 7"></div>
+            </div>
+            <div class="gallery-item">
+              <div class="wipe"><img class="gallery-thumb" src="/assets/images/ATLANTIS IMPACT (2).JPG" alt="Gallery 8"></div>
+            </div>
+            <div class="gallery-item">
+              <div class="wipe"><img class="gallery-thumb" src="/assets/images/ATLANTIS IMPACT (3).JPG" alt="Gallery 9"></div>
+            </div>
+            <div class="gallery-item">
+              <div class="wipe"><img class="gallery-thumb" src="/assets/images/ATLANTIS IMPACT (4).JPG" alt="Gallery 10"></div>
+            </div>
+            <div class="gallery-item">
+              <div class="wipe"><img class="gallery-thumb" src="/assets/images/ATLANTIS IMPACT (5).JPG" alt="Gallery 11"></div>
+            </div>
+            <div class="gallery-item">
+              <div class="wipe"><img class="gallery-thumb" src="/assets/images/ATLANTIS IMPACT (6).JPG" alt="Gallery 12"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Lightbox overlay for gallery modal -->
+        <div id="lightbox" class="lightbox-overlay" aria-hidden="true">
+          <div class="lightbox-inner" role="dialog" aria-modal="true">
+            <button class="lightbox-close" aria-label="Close">×</button>
+            <!-- cloned image will be appended here at runtime -->
+          </div>
+        </div>
+        <section id="contact" class="contact-section">
+          <div class="history-grid container mx-auto px-6">
+            <div class="contact-left">
+              <h2 class="contact-title">Contact Us</h2>
+              <div class="contact-details">
+                <p>Phone: <a href="tel:+27123456789">+27 12 345 6789</a></p>
+                <p>Email: <a href="mailto:info@celebrateatlantis.org">info@celebrateatlantis.org</a></p>
+                <p>Address: Atlantis, Western Cape, South Africa</p>
+              </div>
+            </div>
+
+            <div class="contact-right">
+              <form id="contact-form" action="/send.php" method="post" novalidate>
+                <div class="form-row">
+                  <input type="text" name="name" id="contact-name" placeholder="Your name" required />
+                </div>
+                <div class="form-row">
+                  <input type="email" name="email" id="contact-email" placeholder="Your email" required />
+                </div>
+                <div class="form-row">
+                  <input type="tel" name="phone" id="contact-phone" placeholder="Phone (optional)" />
+                </div>
+                <div class="form-row">
+                  <textarea name="message" id="contact-message" rows="6" placeholder="Message" required></textarea>
+                </div>
+                <!-- simple honeypot to deter bots -->
+                <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off">
+
+                <div class="form-row form-actions">
+                  <button type="submit" class="btn-primary">Send Message</button>
+                  <span id="contact-status" role="status" aria-live="polite" style="margin-left:12px"></span>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+    </main>
+
+    <section class="celebrate-strip" aria-hidden="true">
+      <div class="celebrate-marquee">
+        <div class="marquee-track">
+          <span class="marquee-item">50 years of pride passion and people!</span>
+          <span class="marquee-item">50 years of pride passion and people!</span>
+          <span class="marquee-item">50 years of pride passion and people!</span>
+          <span class="marquee-item">50 years of pride passion and people!</span>
+          <span class="marquee-item">50 years of pride passion and people!</span>
+        </div>
+        <div class="marquee-track" aria-hidden="true">
+          <span class="marquee-item">50 years of pride passion and people!</span>
+          <span class="marquee-item">50 years of pride passion and people!</span>
+          <span class="marquee-item">50 years of pride passion and people!</span>
+          <span class="marquee-item">50 years of pride passion and people!</span>
+          <span class="marquee-item">50 years of pride passion and people!</span>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer bg-gray-800 text-white py-4">
+        <div class="container footer-inner mx-auto px-6 flex justify-between items-center">
+            <span>&copy; 2025 Celebrate Atlantis. All Rights Reserved.</span>
+            <span>Designed & Developed by Halo</span>
+        </div>
+    </footer>
+
+    <script type="module" src="/main.js"></script>
+</body>
+</html>

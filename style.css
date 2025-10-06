@@ -1,0 +1,605 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ensure a sensible fallback if Tailwind isn't applied for any reason. */
+body {
+    font-family: 'Open Sans', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+}
+
+/* Prevent horizontal overflow caused by full-bleed tricks */
+html, body { overflow-x: hidden; }
+
+/* Make sure Tailwind's `font-sans` class uses Open Sans as well */
+.font-sans {
+  font-family: 'Open Sans', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+}
+
+/* Header layout and fallbacks (works with or without Tailwind utilities) */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #fff;
+  border-bottom: none; /* removed as requested */
+}
+
+/* Mobile menu toggle */
+.mobile-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  padding: 6px;
+  margin-right: 6px;
+}
+.mobile-toggle .hamburger {
+  display: block;
+  width: 26px;
+  height: 2px;
+  background: #0f172a;
+  position: relative;
+}
+.mobile-toggle .hamburger::before,
+.mobile-toggle .hamburger::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 26px;
+  height: 2px;
+  background: #0f172a;
+}
+.mobile-toggle .hamburger::before { top: -8px }
+.mobile-toggle .hamburger::after { top: 8px }
+
+/* Larger screens: three columns (left, center, right) */
+@media (min-width: 640px) {
+  .site-header {
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+  }
+
+  .header-left,
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Make the right column content align to the far right */
+  .header-right {
+    justify-content: flex-end;
+  }
+
+  .header-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+/* Mobile styles */
+@media (max-width: 639px) {
+  /* Header: show just logo and hamburger in two columns */
+  .mobile-toggle { display: block }
+  .header-left { display: none } /* hide facebook icon on mobile */
+  .site-header { grid-template-columns: 1fr auto; padding-left: 12px; padding-right: 12px }
+  .header-center { justify-content: flex-start; }
+  .header-center .logo { display: flex; align-items: center }
+  .header-right { display: flex; align-items: center; justify-content: flex-end }
+
+  /* Mobile dropdown menu styling */
+  /* mobile: full-width dropdown under header, hidden by default */
+  .menu {
+    display: block; /* keep in flow but collapsed via max-height */
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(2,6,23,0.12);
+    border-top: 1px solid rgba(15,23,42,0.04);
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 360ms cubic-bezier(.22,.9,.36,1), opacity 220ms ease;
+    opacity: 0;
+    z-index: 1200;
+  }
+  /* open state: allow enough height to show items (auto can't be transitioned) */
+  .menu.open {
+    max-height: 520px; /* large enough for several items; adjust as needed */
+    opacity: 1;
+  }
+  .menu li { display: block }
+  .menu a { display: block; padding: 14px 18px; color: #0f172a }
+}
+
+/* Generic centering for stacked / narrow layouts */
+.site-header > * {
+  display: flex;
+  align-items: center;
+}
+
+/* Logo sizes */
+.header-center .logo img {
+  height: 100px;
+  width: auto;
+  display: block;
+  /* enforce exact height */
+  max-height: 100px;
+}
+
+/* Facebook icon size */
+.header-left .facebook-icon img,
+.facebook-icon {
+  height: 30px;
+  width: auto;
+  display: block;
+}
+
+/* Prevent images from overflowing */
+.site-header img {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Menu styling and spacing */
+.menu {
+  display: flex;
+  flex-direction: row; /* force horizontal layout */
+  flex-wrap: nowrap;
+  gap: 1rem;               /* spacing around items */
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.menu a {
+  font-family: 'Open Sans', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-weight: 600;
+  color: #0f172a; /* explicit dark color to ensure visibility */
+  text-decoration: none;
+  padding: 0.35rem 0.5rem;
+  display: inline-block;
+  font-size: 16px; /* requested size */
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+/* Optional: subtle hit area on menu items */
+.menu a:hover,
+.menu a:focus {
+  outline: none;
+}
+
+.menu a:focus-visible {
+  outline: 3px solid rgba(59,130,246,0.18);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Ticker effect: two stacked labels, animate vertical translate to replace text */
+.ticker {
+  display: inline-block;
+  overflow: hidden;
+  height: 1.1em; /* keep same height as text, slightly larger for spacing */
+}
+.ticker .label {
+  display: block;
+  transform: translateY(0);
+  transition: transform 300ms cubic-bezier(.2,.8,.2,1);
+  color: #0f172a; /* dark text to be visible */
+}
+.ticker .label.alt {
+  position: relative;
+  transform: translateY(100%);
+  font-weight: 700;
+  color: #0f172a; /* ensure incoming label is visible */
+}
+
+/* sliding underline effect (left-to-right) similar to the referenced site */
+.menu a {
+  position: relative;
+}
+
+/* removed old flip rules; ticker effect replaces them */
+
+/* Ensure header contents remain vertically centered even when tall logo present */
+.site-header { min-height: 64px; }
+/* Ensure sections are full viewport height even if Tailwind isn't applied */
+section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+/* The celebrate strip should not inherit the full-section height */
+.celebrate-strip {
+  min-height: 0;
+  /* add 1% top/bottom padding so the text is vertically centered in the stripe */
+  padding: 1% 0;
+}
+
+/* History timeline two-column layout */
+.history-section {
+  padding: 4rem 1rem;
+  background: #fff;
+}
+.history-grid {
+  display: grid;
+  grid-template-columns: 420px 1fr; /* larger left column so right content is narrower */
+  gap: 5rem; /* bigger space between columns */
+  align-items: start;
+}
+.history-year {
+  font-family: 'Oswald', 'Open Sans', system-ui;
+  font-size: 120px;
+  font-weight: 800;
+  color: #0f172a;
+  min-height: 200px; /* ensure at least 200px height */
+  display: flex;
+  align-items: flex-start;
+  padding: 8px 0;
+  position: sticky; /* CSS controls stickiness */
+  top: 10vh; /* stick at least 10vh from top as requested */
+}
+.history-modules { padding-top: 8px }
+.timeline-module {
+  margin-bottom: 4.5rem;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 600ms ease, transform 600ms ease;
+}
+.timeline-module.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+.module-title {
+  font-family: 'Oswald', 'Open Sans';
+  font-size: 26px;
+  margin: 0 0 0.5rem 0;
+}
+.module-image img {
+  width: 75%; /* smaller by ~25% compared to full-width */
+  max-width: 900px;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  border-radius: 6px;
+  margin: 0; /* left-align the image */
+}
+
+/* Align titles and paragraphs to the left edge of the image */
+.timeline-module {
+  max-width: 75%;
+}
+.timeline-module .module-title,
+.timeline-module p {
+  text-align: left;
+  margin-left: 0;
+}
+.timeline-module p { color: #374151; line-height: 1.6 }
+
+/* Contact section layout: reuse history-grid two-column layout */
+.contact-section {
+  padding: 4rem 1rem;
+  background: #fff;
+}
+.contact-left {
+  padding-right: 1rem;
+}
+.contact-right {
+  padding-left: 1rem;
+}
+.contact-title {
+  font-family: 'Oswald', 'Open Sans';
+  font-size: 48px;
+  margin: 0 0 1rem 0;
+}
+.contact-details p { margin: 0 0 0.75rem 0; color: #374151 }
+
+/* Form styles: minimal, underline-only fields */
+.form-row { margin-bottom: 1rem }
+.form-row input,
+.form-row textarea {
+  width: 100%;
+  border: none;
+  border-bottom: 2px solid #e5e7eb;
+  padding: 0.5rem 0.25rem;
+  font-size: 16px;
+  background: transparent;
+  resize: vertical;
+  outline: none;
+  transition: border-color 180ms ease;
+}
+.form-row input:focus,
+.form-row textarea:focus { border-bottom-color: #2563eb }
+.form-actions { display:flex; align-items:center }
+.btn-primary {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.btn-primary:disabled { opacity: 0.6; cursor: default }
+
+/* Celebrate strip — full width green marquee */
+.celebrate-strip {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  background: #41ad49; /* green strip */
+  overflow: hidden;
+}
+.celebrate-marquee {
+  display: flex;
+  align-items: center;
+  /* inner track has no extra vertical padding; spacing comes from .celebrate-strip */
+  padding: 0;
+  position: relative;
+}
+.marquee-track {
+  display: flex;
+  gap: 3rem;
+  white-space: nowrap;
+  align-items: center;
+  animation: marquee 18s linear infinite;
+}
+.marquee-track:nth-child(2) { animation-delay: -9s }
+.marquee-item {
+  font-family: 'Oswald', 'Open Sans', sans-serif;
+  font-weight: 700;
+  /* ensure at least 60px text but remain responsive */
+  font-size: clamp(60px, 6vw, 100px);
+  line-height: 1;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0) }
+  to { transform: translateX(-50%) }
+}
+
+/* Footer tweaks: smaller, light grey text and inner width 90vw */
+.site-footer .footer-inner { width: 90vw; max-width: none }
+.site-footer { background: #ffffff; padding: 2.5rem 0 }
+.site-footer span { color: #6b7280; font-size: 12px }
+
+
+
+@media (max-width: 900px) {
+  .history-grid { grid-template-columns: 1fr; }
+  .history-year { font-size: 72px; text-align: center; position: relative; top: 0 }
+}
+
+/* Gallery section (90vw) with left-to-right wipe reveal */
+.gallery-section {
+  padding: 4rem 0;
+  display: flex;
+  justify-content: center;
+}
+.gallery-inner {
+  width: 95vw; /* increased to 95vw as requested */
+  max-width: none; /* allow full use of viewport width */
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px; /* very small spaces between images */
+}
+.gallery-item {
+  overflow: hidden; /* clip rounded corners */
+  border-radius: 8px;
+}
+.wipe {
+  overflow: hidden;
+  position: relative;
+}
+.wipe img {
+  display: block;
+  width: 100%;
+  transform: translateX(-100%);
+  transition: transform 900ms cubic-bezier(.22,.9,.36,1), opacity 600ms ease;
+  opacity: 0.98;
+  border-radius: 8px; /* subtle rounding */
+}
+.wipe.visible img {
+  transform: translateX(0%);
+  opacity: 1;
+}
+
+/* Gallery grid responsiveness */
+@media (max-width: 1100px) {
+  .gallery-inner { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 780px) {
+  .gallery-inner { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .gallery-inner { grid-template-columns: 1fr; }
+}
+
+/* Lightbox */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15,23,42,0.6);
+  z-index: 2000;
+}
+.lightbox-overlay.open { display: flex }
+.lightbox-inner {
+  position: relative;
+  max-width: 92vw;
+  max-height: 88vh;
+}
+.lightbox-inner img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 6px;
+  box-shadow: 0 20px 60px rgba(2,6,23,0.45);
+}
+.lightbox-close {
+  position: absolute;
+  right: -18px;
+  top: -18px;
+  background: #fff;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* Hero masked text slideshow */
+.hero {
+  position: relative;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.hero-inner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* allow JS to update these via transform for the shrink-on-scroll effect */
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+.hero-text-wrap {
+  position: relative;
+  width: 90vw; /* wide text */
+  max-width: 1600px;
+  height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero-text {
+  font-family: 'Oswald', 'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  font-weight: 800;
+  font-size: min(33.6vw, 28.8rem); /* increased by 20% */
+  line-height: 0.9;
+  margin: 0;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+  display: block;
+  /* CSS vars used for animating background without transforming the text element */
+  --scale: 1;
+  --posY: 40%;
+  background-image: url('/assets/images/ATLANTIS IMPACT (1).jpg');
+  background-size: calc(var(--scale) * 140%);
+  background-position: 50% var(--posY);
+}
+.layer-a {
+  z-index: 2;
+}
+.layer-b {
+  z-index: 1;
+}
+
+/* each layer will receive a background-image via JS and animated with transform for Ken Burns */
+.hero-text[style] {
+  /* background positioning will be set inline */
+  background-size: cover;
+  background-position: center center;
+}
+
+/* Fallback/ensure single-layer masked background is visible without JS */
+.hero-text.layer-a {
+  opacity: 1;
+  --scale: 1.02;
+  --posY: 40%;
+  background-size: calc(var(--scale) * 140%);
+  background-position: 50% var(--posY);
+}
+
+/* Crossfade layers: both occupy same position, opacity animates */
+.hero-text.layer-a,
+.hero-text.layer-b {
+  transition: opacity 1.2s ease-in-out, filter 1.2s ease-in-out;
+  will-change: opacity, transform;
+}
+.hero-text.layer-a { opacity: 1; }
+.hero-text.layer-b { opacity: 0; }
+
+/* If JS disabled, ensure layer-a shows the first image */
+.hero-text.layer-a[style], .hero-text.layer-b[style] {
+  background-size: cover;
+  background-position: 50% 40%;
+}
+
+/* --- About section reveal + fixed + letter animation --- */
+.about-lines {
+  display: inline-block;
+  width: 90vw; /* use 90% of viewport width as requested */
+  max-width: none;
+  text-align: center;
+}
+.about-line {
+  font-family: 'Oswald', 'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  font-weight: 700;
+  font-size: 48px; /* slightly smaller */
+  margin: 0.1em 0;
+  color: #f3f4f6; /* very light grey to start */
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 600ms ease, transform 600ms ease;
+  line-height: 0.95;
+  display: block;
+}
+.about-line.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.about-lines.fixed {
+  position: fixed;
+  top: 8vh;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 70;
+}
+
+/* letter spans inside each line */
+.about-line .char {
+  display: inline-block;
+  color: #f3f4f6; /* same very light grey default */
+  transition: color 220ms linear;
+}
+.about-lines.chars-active .char {
+  color: #000;
+}
+
+/* small helper to preserve spacing visual when splitting */
+.about-line .char.space { width: 0.36em; display: inline-block; }
