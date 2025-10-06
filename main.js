@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Try to animate scrollTop via Motion One, fallback to native smooth scroll
       try {
         const el = document.scrollingElement || document.documentElement
-        animate(el, { scrollTop: targetY }, { duration: 0.6, easing: 'ease-in-out' })
+        animate(el, { scrollTop: targetY }, { duration: 0.9, easing: 'ease-in-out' })
       } catch (err) {
         window.scrollTo({ top: targetY, behavior: 'smooth' })
       }
@@ -63,8 +63,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const enter = () => {
       try {
-        animate(current, { transform: ['translateY(0%)', 'translateY(-100%)'] }, { duration: 0.32, easing: 'ease-in-out' })
-        animate(alt, { transform: ['translateY(100%)', 'translateY(0%)'] }, { duration: 0.32, easing: 'ease-in-out' })
+        animate(current, { transform: ['translateY(0%)', 'translateY(-100%)'] }, { duration: 0.5, easing: 'ease-in-out' })
+        animate(alt, { transform: ['translateY(100%)', 'translateY(0%)'] }, { duration: 0.5, easing: 'ease-in-out' })
       } catch (e) {
         current.style.transform = 'translateY(-100%)'
         alt.style.transform = 'translateY(0)'
@@ -73,8 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const leave = () => {
       try {
-        animate(current, { transform: ['translateY(-100%)', 'translateY(0%)'] }, { duration: 0.32, easing: 'ease-in-out' })
-        animate(alt, { transform: ['translateY(0%)', 'translateY(100%)'] }, { duration: 0.32, easing: 'ease-in-out' })
+        animate(current, { transform: ['translateY(-100%)', 'translateY(0%)'] }, { duration: 0.5, easing: 'ease-in-out' })
+        animate(alt, { transform: ['translateY(0%)', 'translateY(100%)'] }, { duration: 0.5, easing: 'ease-in-out' })
       } catch (e) {
         current.style.transform = 'translateY(0)'
         alt.style.transform = 'translateY(100%)'
@@ -109,38 +109,46 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!a || !b) return
 
   // Preload images
-  const preloaded = []
-  images.forEach(src => { const img = new Image(); img.src = src; preloaded.push(img) })
+  images.forEach(src => { const img = new Image(); img.src = src; })
 
   let idx = 0
   const holdMs = 2800
-  const crossfadeMs = 1200
+  const crossfadeMs = 1800
 
   // initial assignment
   a.style.backgroundImage = `url('${images[0]}')`
   b.style.backgroundImage = `url('${images[1]}')`
-  a.style.opacity = 1
-  b.style.opacity = 0
-
-  let showingA = true
-
-  const tick = () => {
-    const next = (idx + 1) % images.length
-    if (showingA) {
-      b.style.backgroundImage = `url('${images[next]}')`
-      b.style.opacity = 1
-      a.style.opacity = 0
-    } else {
-      a.style.backgroundImage = `url('${images[next]}')`
-      a.style.opacity = 1
-      b.style.opacity = 0
-    }
-    showingA = !showingA
-    idx = next
-  }
 
   // start loop with intervals -- crossfade is handled by CSS transition on opacity
-  setInterval(tick, holdMs + crossfadeMs)
+  setInterval(() => {
+    const next = (idx + 1) % images.length
+    const currentLayer = (idx % 2 === 0) ? a : b;
+    const nextLayer = (idx % 2 === 0) ? b : a;
+
+    nextLayer.style.backgroundImage = `url('${images[next]}')`
+    currentLayer.style.opacity = 0
+    nextLayer.style.opacity = 1
+    idx = next
+  }, holdMs + crossfadeMs)
+})
+
+// Scrolling ticker for the green stripe
+document.addEventListener('DOMContentLoaded', () => {
+  const marquee = document.querySelector('.celebrate-marquee')
+  if (!marquee) return
+
+  const tracks = marquee.querySelectorAll('.marquee-track')
+  if (tracks.length === 0) return
+
+  // Use Motion One's animate function for a smooth, hardware-accelerated marquee
+  tracks.forEach(track => {
+    const totalWidth = track.scrollWidth / 2 // Since we have two copies of the content
+    animate(
+      track,
+      { transform: [`translateX(0)`, `translateX(-${totalWidth}px)`] },
+      { duration: 25, repeat: Infinity, ease: 'linear' }
+    )
+  })
 })
 
 
@@ -149,7 +157,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const hero = document.querySelector('.hero')
   const heroInner = document.querySelector('.hero-inner')
   const aboutLinesEl = document.getElementById('about-lines')
-  if (!hero || !heroInner || !aboutLinesEl) return
+  const imgLeft = document.querySelector('.about-image-left');
+  const imgRight = document.querySelector('.about-image-right');
+  if (!hero || !heroInner || !aboutLinesEl || !imgLeft || !imgRight) return
 
   const lines = Array.from(aboutLinesEl.querySelectorAll('.about-line'))
 
@@ -169,64 +179,112 @@ document.addEventListener('DOMContentLoaded', () => {
   const totalChars = allChars.length
 
   let heroHeight = hero.offsetHeight
-  let shrinkRange = Math.max(1, heroHeight * 0.75) // px over which the hero shrinks
-  let extraRange = 320 // px over which letters fill from left->right
+  let aboutSectionTop = hero.offsetTop + heroHeight
+  const aboutFillDuration = window.innerHeight * 0.75; // Scroll distance for text to fill
+  const aboutHoldDuration = window.innerHeight * 0.25; // Hold everything in place
+  const aboutImageExitDuration = window.innerHeight * 0.5; // Scroll distance for images to exit
+  const aboutTextExitDuration = window.innerHeight * 0.5; // Scroll distance for text to exit
 
   function recalc() {
     heroHeight = hero.offsetHeight
-    shrinkRange = Math.max(1, heroHeight * 0.75)
-    extraRange = Math.max(200, window.innerHeight * 0.3)
+    aboutSectionTop = hero.offsetTop + heroHeight
+    // Note: Durations are now constants, but you could recalculate them here if needed
   }
   window.addEventListener('resize', recalc)
   recalc()
 
   let ticking = false
   function onScroll() {
-    if (!ticking) {
-      window.requestAnimationFrame(updateFromScroll)
-      ticking = true
-    }
+    if (ticking) return
+    window.requestAnimationFrame(updateFromScroll)
+    ticking = true
   }
 
   function clamp(v, a=0, b=1){ return Math.max(a, Math.min(b, v)) }
 
+  // Easing function for a smoother animation
+  const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
   function updateFromScroll(){
     ticking = false
     const scrollY = window.scrollY || window.pageYOffset
+    const viewportHeight = window.innerHeight
 
-    // progress 0..1 while scrolling from top down to shrinkRange
-    const p = clamp(scrollY / shrinkRange, 0, 1)
-
-    // shrink hero: scale 1 -> 0.45, translate up 0 -> - (heroHeight * 0.35)
-    const scale = 1 - (0.55 * p)
-    const ty = - (heroHeight * 0.35 * p)
+    // --- Phase 1: Hero shrink and About section reveal ---
+    const heroShrinkProgress = clamp(scrollY / (heroHeight * 0.4), 0, 1)
+    const scale = 1 - (0.55 * heroShrinkProgress)
+    const ty = - (heroHeight * 0.35 * heroShrinkProgress)
     heroInner.style.transform = `translateY(${ty}px) scale(${scale})`
 
-    // reveal lines progressively based on p
-    const revealCount = Math.floor(p * lines.length + 0.0001)
+    const revealCount = Math.floor(heroShrinkProgress * lines.length + 0.0001)
     lines.forEach((ln, i) => {
-      if (i < revealCount) {
-        ln.classList.add('revealed')
-      } else {
-        ln.classList.remove('revealed')
-      }
+      ln.classList.toggle('revealed', i < revealCount)
     })
 
-    // Instead of pinning abruptly, compute how close the about block center is to viewport center
-    const aboutRect = aboutLinesEl.getBoundingClientRect()
-    const aboutCenterY = aboutRect.top + aboutRect.height / 2
-    const viewportCenter = window.innerHeight / 2
-    const distance = Math.abs(viewportCenter - aboutCenterY)
-    const maxDist = window.innerHeight * 0.55 // distance at which fill is 0
-    const proximity = clamp(1 - (distance / maxDist), 0, 1) // 0..1 when near center
+    // --- Phase 2 & 3: Sticky positioning and letter-by-letter fill ---
+    const aboutLinesHeight = aboutLinesEl.offsetHeight
+    const stickyStart = aboutSectionTop - (viewportHeight - aboutLinesHeight) / 2;
+    const fillEnd = stickyStart + aboutFillDuration;
+    const holdEnd = fillEnd + aboutHoldDuration;
+    const imageExitEnd = holdEnd + aboutImageExitDuration;
+    const textExitEnd = imageExitEnd + aboutTextExitDuration;
 
-    // use proximity to drive letter fill left-to-right
-    const fillCount = Math.floor(totalChars * proximity)
+    let fillProgress = 0;
+    let exitProgress = 0;
+
+    if (scrollY < stickyStart) {
+      // --- Not sticky yet ---
+      aboutLinesEl.classList.remove('fixed-about');
+      fillProgress = 0;
+
+    } else if (scrollY >= stickyStart && scrollY < fillEnd) {
+      // --- Phase 2: Sticky and filling text/images ---
+      aboutLinesEl.classList.add('fixed-about');
+      aboutLinesEl.style.top = `${(viewportHeight - aboutLinesHeight) / 2}px`;
+      fillProgress = clamp((scrollY - stickyStart) / aboutFillDuration, 0, 1);
+
+    } else if (scrollY >= fillEnd && scrollY < textExitEnd) {
+      // --- Phase 3 & 4: Holding and then exiting ---
+      aboutLinesEl.classList.add('fixed-about');
+      aboutLinesEl.style.top = `${(viewportHeight - aboutLinesHeight) / 2}px`;
+      fillProgress = 1;
+      exitProgress = clamp((scrollY - holdEnd) / (textExitEnd - holdEnd), 0, 1);
+
+    } else {
+      // --- Scrolled past, un-stick ---
+      aboutLinesEl.classList.remove('fixed-about');
+      fillProgress = 1;
+      exitProgress = 1;
+    }
+
+    // --- Animate Images In/Out ---
+    const leftImageEnterProgress = easeOutCubic(clamp(fillProgress * 1.5, 0, 1));
+    const leftImageExitProgress = easeOutCubic(clamp(exitProgress * 2.0, 0, 1)); // Exits twice as fast
+    const leftImageTranslateY = (1 - leftImageEnterProgress) * 50 + (leftImageExitProgress * -50);
+    imgLeft.style.opacity = leftImageEnterProgress - leftImageExitProgress;
+    imgLeft.style.transform = `translateY(${leftImageTranslateY}vh)`;
+
+    const rightImageEnterDelay = 0.4;
+    const rightImageExitDelay = 0.2; // Slight delay on exit
+    const rightImageEnterProgress = easeOutCubic(clamp((fillProgress - rightImageEnterDelay) / (1 - rightImageEnterDelay), 0, 1));
+    const rightImageExitProgress = easeOutCubic(clamp((exitProgress - rightImageExitDelay) / (1 - rightImageExitDelay), 0, 1));
+    const rightImageTranslateY = (1 - rightImageEnterProgress) * 40 + (rightImageExitProgress * -40);
+    imgRight.style.opacity = rightImageEnterProgress - rightImageExitProgress;
+    imgRight.style.transform = `translateY(${rightImageTranslateY}vh)`;
+
+    // --- Animate Text Fill In/Out ---
+    const textExitDelay = 0.5; // Text starts to reverse after images are mostly gone
+    const textExitProgress = clamp((exitProgress - textExitDelay) / (1 - textExitDelay), 0, 1);
+    const fillCount = Math.floor(totalChars * (fillProgress - textExitProgress));
     allChars.forEach((ch, i) => {
-      ch.style.color = (i < fillCount) ? '#000' : '#f3f4f6'
-    })
-    if (proximity > 0) aboutLinesEl.classList.add('chars-active')
-    else aboutLinesEl.classList.remove('chars-active')
+      ch.style.color = (i < fillCount) ? '#000' : '#d1d5db' /* Darker grey */
+    });
+
+    // --- Animate Text Block Out ---
+    const textBlockExitDelay = 0.7; // Text block slides up at the very end
+    const textBlockExitProgress = easeOutCubic(clamp((exitProgress - textBlockExitDelay) / (1 - textBlockExitDelay), 0, 1));
+    const textBlockTranslateY = textBlockExitProgress * -50;
+    aboutLinesEl.style.transform = `translateX(-50%) translateY(${textBlockTranslateY}vh)`;
   }
 
   window.addEventListener('scroll', onScroll, { passive: true })
@@ -276,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
           el.dataset.revealed = '1'
           // reveal with a slight stagger based on position among wipes
           const i = wipes.indexOf(el)
-          setTimeout(() => el.classList.add('visible'), Math.max(0, i) * 120)
+          setTimeout(() => el.classList.add('visible'), Math.max(0, i) * 180)
           // stop observing this element — we only want the entrance once
           obs.unobserve(el)
         }
@@ -296,28 +354,21 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   thumbs.forEach(thumb => {
-    thumb.style.cursor = 'zoom-in'
     thumb.addEventListener('click', (e) => {
       const img = e.currentTarget
       const src = img.src
       const rect = img.getBoundingClientRect()
 
-      // create clone and remove thumbnail class so site CSS doesn't interfere
       const clone = img.cloneNode(true)
       clone.classList.remove('gallery-thumb')
-      clone.style.position = 'fixed'
-      clone.style.left = rect.left + 'px'
-      clone.style.top = rect.top + 'px'
-      clone.style.width = rect.width + 'px'
-      clone.style.height = rect.height + 'px'
-      clone.style.margin = 0
-      clone.style.zIndex = 2100
-      clone.style.boxSizing = 'border-box'
-      clone.style.objectFit = 'cover'
-      // use top-left origin so translate values are easy to compute
-      clone.style.transformOrigin = '0 0'
-      // animate transform for GPU-acceleration and opacity for fade
-      clone.style.transition = 'transform 520ms cubic-bezier(.22,.9,.36,1), opacity 260ms ease'
+      Object.assign(clone.style, {
+        position: 'fixed',
+        left: `${rect.left}px`,
+        top: `${rect.top}px`,
+        width: `${rect.width}px`,
+        height: `${rect.height}px`,
+        zIndex: 2100,
+      })
 
       document.body.appendChild(clone)
 
@@ -340,53 +391,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const targetLeft = Math.round((vw - targetW) / 2)
       const targetTop = Math.round((vh - targetH) / 2)
 
-      // compute transform needed: translate from current (rect.left,rect.top) to targetLeft/Top
-      const deltaX = targetLeft - rect.left
-      const deltaY = targetTop - rect.top
-      const scale = targetW / rect.width
-
-      // set initial transform to identity, then animate to translate+scale
-      clone.style.transform = 'translate(0px, 0px) scale(1)'
-
-      // animate using transform (translate + scale) to avoid layout thrash
-      requestAnimationFrame(() => {
-        clone.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${scale})`
-      })
-
-      // finalize: after transform transition ends, insert final responsive image and remove clone
-      let settled = false
-      const finalize = () => {
-        if (settled) return
-        settled = true
-
-        const finalImg = document.createElement('img')
-        finalImg.src = src
-        finalImg.alt = img.alt || ''
-        finalImg.style.maxWidth = '92vw'
-        finalImg.style.maxHeight = '86vh'
-        finalImg.style.width = 'auto'
-        finalImg.style.height = 'auto'
-        finalImg.style.opacity = '0'
-        finalImg.style.transition = 'opacity 220ms ease'
-
-        // clear any previous content, then append
-        Array.from(lightboxInner.querySelectorAll('img')).forEach(n => n.remove())
-        lightboxInner.appendChild(finalImg)
-
-        // fade in the final image and remove the clone
-        requestAnimationFrame(() => { finalImg.style.opacity = '1' })
-        clone.remove()
-      }
-
-      const onTransitionEnd = (ev) => {
-        if (ev.target !== clone) return
-        clone.removeEventListener('transitionend', onTransitionEnd)
-        finalize()
-      }
-
-      clone.addEventListener('transitionend', onTransitionEnd)
-      // safety fallback in case transitionend doesn't fire
-      setTimeout(finalize, 700)
+      animate(clone, {
+        left: `${targetLeft}px`,
+        top: `${targetTop}px`,
+        width: `${targetW}px`,
+        height: `${targetH}px`,
+      }, {
+        duration: 0.5,
+        easing: [0.4, 0, 0.2, 1]
+      }).finished.then(() => {
+        clone.remove();
+        lightboxInner.innerHTML = `<img src="${src}" alt="${img.alt || ''}" style="max-width: 92vw; max-height: 86vh; width: auto; height: auto; border-radius: 6px; box-shadow: 0 20px 60px rgba(2,6,23,0.45);">`;
+      });
     })
   })
 
@@ -397,53 +413,27 @@ document.addEventListener('DOMContentLoaded', () => {
       const src = finalImg.src
       // find matching thumb (first match)
       const targetThumb = thumbs.find(t => t.src === src)
-      if (targetThumb) {
-        // create a clone positioned over the final image, animate back to thumbnail
-        const startRect = finalImg.getBoundingClientRect()
-        const endRect = targetThumb.getBoundingClientRect()
+      if (!targetThumb) return;
 
-        const clone = finalImg.cloneNode(true)
-        clone.style.position = 'fixed'
-        clone.style.left = startRect.left + 'px'
-        clone.style.top = startRect.top + 'px'
-        clone.style.width = startRect.width + 'px'
-        clone.style.height = startRect.height + 'px'
-        clone.style.margin = 0
-        clone.style.zIndex = 2200
-        clone.style.boxSizing = 'border-box'
-        clone.style.objectFit = 'cover'
-        clone.style.transformOrigin = '0 0'
-        clone.style.transition = 'transform 420ms cubic-bezier(.22,.9,.36,1), opacity 180ms ease'
+      const startRect = finalImg.getBoundingClientRect();
+      const endRect = targetThumb.getBoundingClientRect();
+      finalImg.remove();
 
-        document.body.appendChild(clone)
+      const clone = targetThumb.cloneNode(true);
+      clone.classList.remove('gallery-thumb');
+      Object.assign(clone.style, {
+        position: 'fixed',
+        left: `${startRect.left}px`,
+        top: `${startRect.top}px`,
+        width: `${startRect.width}px`,
+        height: `${startRect.height}px`,
+        zIndex: 2100,
+      });
+      document.body.appendChild(clone);
 
-        // hide finalImg immediately to avoid duplicate visuals
-        finalImg.style.opacity = '0'
-
-        const deltaX = endRect.left - startRect.left
-        const deltaY = endRect.top - startRect.top
-        const scale = endRect.width / startRect.width
-
-        requestAnimationFrame(() => {
-          clone.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(${scale})`
-          clone.style.opacity = '0.95'
-        })
-
-        const cleanup = () => {
-          clone.remove()
-          // clear the lightbox content and hide overlay
-          Array.from(lightboxInner.querySelectorAll('img')).forEach(n => n.remove())
-          lightbox.classList.remove('open')
-          lightbox.setAttribute('aria-hidden', 'true')
-        }
-
-        clone.addEventListener('transitionend', () => cleanup(), { once: true })
-        // safety fallback
-        setTimeout(cleanup, 600)
-        return
-      }
-      // if no matching thumb, just remove and hide
-      finalImg.remove()
+      animate(clone, { left: `${endRect.left}px`, top: `${endRect.top}px`, width: `${endRect.width}px`, height: `${endRect.height}px` }, { duration: 0.4, easing: 'easeOut' }).finished.then(() => {
+        clone.remove();
+      });
     }
     lightbox.classList.remove('open')
     lightbox.setAttribute('aria-hidden', 'true')
@@ -451,7 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (closeBtn) closeBtn.addEventListener('click', closeLightbox)
   if (lightbox) lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox() })
-})
+});
 
 
 // Contact form AJAX submit (progressive enhancement)

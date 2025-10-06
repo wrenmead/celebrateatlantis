@@ -12,16 +12,10 @@
   <link rel="stylesheet" href="/style.css">
     <style>
       /* Strong overrides to quickly verify the layout while debugging CSS pipeline */
-      .site-header .header-center .logo img { height: 100px !important; width: auto !important; max-height: 100px !important; }
+      .site-header .header-center .logo img { height: 150px !important; width: auto !important; max-height: 150px !important; }
       .site-header .header-left svg { width: 30px !important; height: 30px !important; }
-      .menu a { font-family: 'Open Sans', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important; font-size: 16px !important; text-transform: uppercase !important; }
       /* Ensure Facebook svg has a visible fill when stylesheet or color inheritance is missing */
       .facebook-icon svg { fill: #1877F2; color: #1877F2; }
-      @media (max-width: 639px) {
-        .site-header .header-left { display: none !important }
-        .site-header .header-center { justify-content: flex-start !important }
-        .mobile-toggle { display: block !important }
-      }
     </style>
 </head>
 <body class="bg-white text-gray-800 font-sans">
@@ -41,53 +35,7 @@
     </a>
   </div>
 
-  <nav class="header-right" aria-label="Main navigation">
-    <button id="mobile-toggle" class="mobile-toggle" aria-controls="main-nav" aria-expanded="false" aria-label="Open menu">
-      <span class="hamburger" aria-hidden="true"></span>
-    </button>
-    <ul id="main-nav" class="menu" role="menubar">
-      <li>
-        <a href="#home">
-          <span class="ticker" aria-hidden="false">
-            <span class="label">Home</span>
-            <span class="label alt">HOME</span>
-          </span>
-        </a>
-      </li>
-      <li>
-        <a href="#about">
-          <span class="ticker" aria-hidden="false">
-            <span class="label">About</span>
-            <span class="label alt">ABOUT</span>
-          </span>
-        </a>
-      </li>
-      <li>
-        <a href="#history">
-          <span class="ticker" aria-hidden="false">
-            <span class="label">History</span>
-            <span class="label alt">HISTORY</span>
-          </span>
-        </a>
-      </li>
-      <li>
-        <a href="#gallery">
-          <span class="ticker" aria-hidden="false">
-            <span class="label">Gallery</span>
-            <span class="label alt">GALLERY</span>
-          </span>
-        </a>
-      </li>
-      <li>
-        <a href="#contact">
-          <span class="ticker" aria-hidden="false">
-            <span class="label">Contact</span>
-            <span class="label alt">CONTACT</span>
-          </span>
-        </a>
-      </li>
-    </ul>
-  </nav>
+  <div class="header-right"></div>
 </header>
 
     <main>
@@ -99,7 +47,7 @@
         </div>
       </div>
     </section>
-        <section id="about" class="h-screen bg-gray-100 flex items-center justify-center">
+        <section id="about" class="h-[250vh] bg-gray-100 flex items-center justify-center">
             <div class="about-lines" id="about-lines">
               <div class="about-line">As the South African town of Atlantis, Western Cape,</div>
               <div class="about-line">marks its historic 50th anniversary in 2026,</div>
@@ -107,6 +55,10 @@
               <div class="about-line">resilience, and a revitalized future as the nation's Greentech hub.</div>
             </div>
         </section>
+        <div class="about-images-container" aria-hidden="true">
+          <img src="/assets/images/ATLANTIS IMPACT (2).JPG" alt="Atlantis Community" class="about-image about-image-left" />
+          <img src="/assets/images/ATLANTIS IMPACT (3).JPG" alt="Atlantis Industry" class="about-image about-image-right" />
+        </div>
         <section id="history" class="history-section">
           <div class="history-grid container mx-auto px-6">
             <div class="history-year" id="history-year" aria-hidden="true">1965</div>
@@ -114,26 +66,38 @@
             <div class="history-modules">
               <article class="timeline-module" data-year="1965">
                 <h3 class="module-title">Founding & Early Settlement</h3>
-                <div class="module-image"><img src="/assets/images/ATLANTIS IMPACT (2).JPG" alt="Atlantis early years"></div>
-                <p>The first settlement of Atlantis in the Western Cape began with planned housing and industrial development that shaped the town's early character.</p>
+                <div class="module-image wipe"><img src="/assets/images/ATLANTIS IMPACT (2).JPG" alt="Atlantis early years"></div>
+                <div class="module-content-grid">
+                  <h3 class="module-sub-heading">Founding & Early Settlement</h3>
+                  <p class="module-text">The first settlement of Atlantis in the Western Cape began with planned housing and industrial development that shaped the town's early character and laid the groundwork for its future growth.</p>
+                </div>
               </article>
 
               <article class="timeline-module" data-year="1975">
                 <h3 class="module-title">Community Growth</h3>
-                <div class="module-image"><img src="/assets/images/ATLANTIS IMPACT (3).JPG" alt="Community growth"></div>
-                <p>Over the following decade the town expanded as new housing and community services were introduced, developing a strong local identity.</p>
+                <div class="module-image wipe"><img src="/assets/images/ATLANTIS IMPACT (3).JPG" alt="Community growth"></div>
+                <div class="module-content-grid">
+                  <h3 class="module-sub-heading">Community Growth</h3>
+                  <p class="module-text">Over the following decade, the town expanded as new housing and community services were introduced, fostering a strong and vibrant local identity among its growing population of residents.</p>
+                </div>
               </article>
 
               <article class="timeline-module" data-year="1985">
                 <h3 class="module-title">Industry & Change</h3>
-                <div class="module-image"><img src="/assets/images/ATLANTIS IMPACT (4).JPG" alt="Industrial change"></div>
-                <p>Industrial shifts and economic changes impacted employment patterns, but also laid foundations for later revitalisation initiatives.</p>
+                <div class="module-image wipe"><img src="/assets/images/ATLANTIS IMPACT (4).JPG" alt="Industrial change"></div>
+                <div class="module-content-grid">
+                  <h3 class="module-sub-heading">Industry & Change</h3>
+                  <p class="module-text">Industrial shifts and economic changes significantly impacted employment patterns, but these challenges also laid the crucial foundations for future revitalisation initiatives that would redefine the town's economic landscape.</p>
+                </div>
               </article>
 
               <article class="timeline-module" data-year="2000">
                 <h3 class="module-title">Revitalisation Efforts</h3>
-                <div class="module-image"><img src="/assets/images/ATLANTIS IMPACT (5).JPG" alt="Revitalisation"></div>
-                <p>Local and national programs in the 2000s focused on infrastructure, training and investment to support a greener, resilient future.</p>
+                <div class="module-image wipe"><img src="/assets/images/ATLANTIS IMPACT (5).JPG" alt="Revitalisation"></div>
+                <div class="module-content-grid">
+                  <h3 class="module-sub-heading">Revitalisation Efforts</h3>
+                  <p class="module-text">Local and national programs in the 2000s focused on critical infrastructure, workforce training, and strategic investment to support a greener, more resilient, and sustainable future for all.</p>
+                </div>
               </article>
 
             </div>

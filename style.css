@@ -9,9 +9,6 @@ body {
     font-family: 'Open Sans', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
 }
 
-/* Prevent horizontal overflow caused by full-bleed tricks */
-html, body { overflow-x: hidden; }
-
 /* Make sure Tailwind's `font-sans` class uses Open Sans as well */
 .font-sans {
   font-family: 'Open Sans', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
@@ -19,7 +16,7 @@ html, body { overflow-x: hidden; }
 
 /* Header layout and fallbacks (works with or without Tailwind utilities) */
 .site-header {
-  position: sticky;
+  position: sticky; /* Make header sticky on all screen sizes */
   top: 0;
   z-index: 50;
   display: grid;
@@ -30,33 +27,6 @@ html, body { overflow-x: hidden; }
   background: #fff;
   border-bottom: none; /* removed as requested */
 }
-
-/* Mobile menu toggle */
-.mobile-toggle {
-  display: none;
-  background: transparent;
-  border: none;
-  padding: 6px;
-  margin-right: 6px;
-}
-.mobile-toggle .hamburger {
-  display: block;
-  width: 26px;
-  height: 2px;
-  background: #0f172a;
-  position: relative;
-}
-.mobile-toggle .hamburger::before,
-.mobile-toggle .hamburger::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  width: 26px;
-  height: 2px;
-  background: #0f172a;
-}
-.mobile-toggle .hamburger::before { top: -8px }
-.mobile-toggle .hamburger::after { top: 8px }
 
 /* Larger screens: three columns (left, center, right) */
 @media (min-width: 640px) {
@@ -85,42 +55,6 @@ html, body { overflow-x: hidden; }
   }
 }
 
-/* Mobile styles */
-@media (max-width: 639px) {
-  /* Header: show just logo and hamburger in two columns */
-  .mobile-toggle { display: block }
-  .header-left { display: none } /* hide facebook icon on mobile */
-  .site-header { grid-template-columns: 1fr auto; padding-left: 12px; padding-right: 12px }
-  .header-center { justify-content: flex-start; }
-  .header-center .logo { display: flex; align-items: center }
-  .header-right { display: flex; align-items: center; justify-content: flex-end }
-
-  /* Mobile dropdown menu styling */
-  /* mobile: full-width dropdown under header, hidden by default */
-  .menu {
-    display: block; /* keep in flow but collapsed via max-height */
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 100%;
-    background: #fff;
-    box-shadow: 0 8px 24px rgba(2,6,23,0.12);
-    border-top: 1px solid rgba(15,23,42,0.04);
-    overflow: hidden;
-    max-height: 0;
-    transition: max-height 360ms cubic-bezier(.22,.9,.36,1), opacity 220ms ease;
-    opacity: 0;
-    z-index: 1200;
-  }
-  /* open state: allow enough height to show items (auto can't be transitioned) */
-  .menu.open {
-    max-height: 520px; /* large enough for several items; adjust as needed */
-    opacity: 1;
-  }
-  .menu li { display: block }
-  .menu a { display: block; padding: 14px 18px; color: #0f172a }
-}
-
 /* Generic centering for stacked / narrow layouts */
 .site-header > * {
   display: flex;
@@ -129,11 +63,11 @@ html, body { overflow-x: hidden; }
 
 /* Logo sizes */
 .header-center .logo img {
-  height: 100px;
+  height: 150px;
   width: auto;
   display: block;
   /* enforce exact height */
-  max-height: 100px;
+  max-height: 150px;
 }
 
 /* Facebook icon size */
@@ -150,68 +84,6 @@ html, body { overflow-x: hidden; }
   height: auto;
   object-fit: contain;
 }
-
-/* Menu styling and spacing */
-.menu {
-  display: flex;
-  flex-direction: row; /* force horizontal layout */
-  flex-wrap: nowrap;
-  gap: 1rem;               /* spacing around items */
-  align-items: center;
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
-
-.menu a {
-  font-family: 'Open Sans', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  font-weight: 600;
-  color: #0f172a; /* explicit dark color to ensure visibility */
-  text-decoration: none;
-  padding: 0.35rem 0.5rem;
-  display: inline-block;
-  font-size: 16px; /* requested size */
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-
-/* Optional: subtle hit area on menu items */
-.menu a:hover,
-.menu a:focus {
-  outline: none;
-}
-
-.menu a:focus-visible {
-  outline: 3px solid rgba(59,130,246,0.18);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
-/* Ticker effect: two stacked labels, animate vertical translate to replace text */
-.ticker {
-  display: inline-block;
-  overflow: hidden;
-  height: 1.1em; /* keep same height as text, slightly larger for spacing */
-}
-.ticker .label {
-  display: block;
-  transform: translateY(0);
-  transition: transform 300ms cubic-bezier(.2,.8,.2,1);
-  color: #0f172a; /* dark text to be visible */
-}
-.ticker .label.alt {
-  position: relative;
-  transform: translateY(100%);
-  font-weight: 700;
-  color: #0f172a; /* ensure incoming label is visible */
-}
-
-/* sliding underline effect (left-to-right) similar to the referenced site */
-.menu a {
-  position: relative;
-}
-
-/* removed old flip rules; ticker effect replaces them */
 
 /* Ensure header contents remain vertically centered even when tall logo present */
 .site-header { min-height: 64px; }
@@ -244,7 +116,7 @@ section {
 }
 .history-year {
   font-family: 'Oswald', 'Open Sans', system-ui;
-  font-size: 120px;
+  font-size: calc(-51.42857px + 16.74107vw);
   font-weight: 800;
   color: #0f172a;
   min-height: 200px; /* ensure at least 200px height */
@@ -252,44 +124,63 @@ section {
   align-items: flex-start;
   padding: 8px 0;
   position: sticky; /* CSS controls stickiness */
-  top: 10vh; /* stick at least 10vh from top as requested */
+  top: 20vh; /* stick further down to clear the taller header */
 }
 .history-modules { padding-top: 8px }
 .timeline-module {
   margin-bottom: 4.5rem;
-  opacity: 0;
-  transform: translateY(18px);
-  transition: opacity 600ms ease, transform 600ms ease;
 }
-.timeline-module.in-view {
-  opacity: 1;
-  transform: translateY(0);
-}
-.module-title {
-  font-family: 'Oswald', 'Open Sans';
-  font-size: 26px;
-  margin: 0 0 0.5rem 0;
+.module-image {
+  overflow: hidden;
+  border-radius: 6px;
+  margin: 0 0 1.5rem 0; /* Add space below the image */
 }
 .module-image img {
-  width: 75%; /* smaller by ~25% compared to full-width */
-  max-width: 900px;
+  width: 100%; /* Fill the column width */
   height: auto;
   display: block;
   object-fit: cover;
-  border-radius: 6px;
-  margin: 0; /* left-align the image */
+  border-radius: 6px; /* Match parent for clipping */
+  transform: translateX(-100%);
+  transition: transform 900ms cubic-bezier(.22,.9,.36,1);
+  opacity: 1; /* Start visible but off-screen */
+}
+
+.timeline-module.in-view .module-image img {
+  transform: translateX(0%);
 }
 
 /* Align titles and paragraphs to the left edge of the image */
 .timeline-module {
-  max-width: 75%;
+  max-width: 100%; /* Allow module to fill the column */
 }
-.timeline-module .module-title,
-.timeline-module p {
-  text-align: left;
-  margin-left: 0;
+.module-content-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 5rem; /* Wider space between columns */
+  align-items: start;
 }
-.timeline-module p { color: #374151; line-height: 1.6 }
+.module-title {
+  font-family: 'Oswald', 'Open Sans';
+  font-size: calc(29px + 3.4375vw);
+  margin: 0 0 1.5rem 0;
+  line-height: 1.1;
+}
+.module-sub-heading {
+  font-family: 'Oswald', 'Open Sans';
+  font-size: calc(20.4px + 1.125vw);
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+}
+.module-text {
+  color: #000000; /* Black text */
+  font-size: calc(15.2px + .25vw);
+  line-height: 1.6;
+}
+.module-text p {
+  margin: 0;
+}
 
 /* Contact section layout: reuse history-grid two-column layout */
 .contact-section {
@@ -359,22 +250,6 @@ section {
   gap: 3rem;
   white-space: nowrap;
   align-items: center;
-  animation: marquee 18s linear infinite;
-}
-.marquee-track:nth-child(2) { animation-delay: -9s }
-.marquee-item {
-  font-family: 'Oswald', 'Open Sans', sans-serif;
-  font-weight: 700;
-  /* ensure at least 60px text but remain responsive */
-  font-size: clamp(60px, 6vw, 100px);
-  line-height: 1;
-  color: #ffffff;
-  letter-spacing: 0.02em;
-}
-
-@keyframes marquee {
-  from { transform: translateX(0) }
-  to { transform: translateX(-50%) }
 }
 
 /* Footer tweaks: smaller, light grey text and inner width 90vw */
@@ -414,9 +289,14 @@ section {
   display: block;
   width: 100%;
   transform: translateX(-100%);
-  transition: transform 900ms cubic-bezier(.22,.9,.36,1), opacity 600ms ease;
+  transition: transform 1200ms cubic-bezier(.22,.9,.36,1), opacity 800ms ease;
   opacity: 0.98;
   border-radius: 8px; /* subtle rounding */
+  transition: transform 0.3s ease;
+}
+.gallery-thumb:hover {
+  transform: scale(1.05);
+  cursor: zoom-in;
 }
 .wipe.visible img {
   transform: translateX(0%);
@@ -441,7 +321,7 @@ section {
   display: none;
   align-items: center;
   justify-content: center;
-  background: rgba(15,23,42,0.6);
+  background: rgba(15,23,42,0.8);
   z-index: 2000;
 }
 .lightbox-overlay.open { display: flex }
@@ -473,7 +353,7 @@ section {
 /* Hero masked text slideshow */
 .hero {
   position: relative;
-  min-height: 80vh;
+  min-height: 60vh; /* Reduced from 80vh to shorten the section */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -491,8 +371,8 @@ section {
 .hero-text-wrap {
   position: relative;
   width: 90vw; /* wide text */
-  max-width: 1600px;
-  height: 80vh;
+  max-width: 1600px; /* Reduced from 80vh */
+  height: 60vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -500,25 +380,25 @@ section {
 .hero-text {
   font-family: 'Oswald', 'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
   font-weight: 800;
-  font-size: min(33.6vw, 28.8rem); /* increased by 20% */
+  font-size: min(31.92vw, 27.36rem); /* reduced by 5% */
   line-height: 0.9;
   margin: 0;
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, calc(-50% + 20px)) scaleY(1.4);
   -webkit-text-fill-color: transparent;
   color: transparent;
   -webkit-background-clip: text;
   background-clip: text;
   text-transform: uppercase;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.06em; /* adjusted for letters to touch */
   display: block;
   /* CSS vars used for animating background without transforming the text element */
   --scale: 1;
   --posY: 40%;
   background-image: url('/assets/images/ATLANTIS IMPACT (1).jpg');
-  background-size: calc(var(--scale) * 140%);
+  background-size: calc(var(--scale) * 150%);
   background-position: 50% var(--posY);
 }
 .layer-a {
@@ -547,7 +427,7 @@ section {
 /* Crossfade layers: both occupy same position, opacity animates */
 .hero-text.layer-a,
 .hero-text.layer-b {
-  transition: opacity 1.2s ease-in-out, filter 1.2s ease-in-out;
+  transition: opacity 1.8s ease-in-out, filter 1.8s ease-in-out;
   will-change: opacity, transform;
 }
 .hero-text.layer-a { opacity: 1; }
@@ -569,9 +449,9 @@ section {
 .about-line {
   font-family: 'Oswald', 'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
   font-weight: 700;
-  font-size: 48px; /* slightly smaller */
+  font-size: 48px;
   margin: 0.1em 0;
-  color: #f3f4f6; /* very light grey to start */
+  color: #d1d5db; /* Darker grey to start */
   opacity: 0;
   transform: translateY(18px);
   transition: opacity 600ms ease, transform 600ms ease;
@@ -583,18 +463,17 @@ section {
   transform: translateY(0);
 }
 
-.about-lines.fixed {
+.about-lines.fixed-about {
   position: fixed;
-  top: 8vh;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%); /* Vertical centering is now handled by JS */
   z-index: 70;
 }
 
 /* letter spans inside each line */
 .about-line .char {
   display: inline-block;
-  color: #f3f4f6; /* same very light grey default */
+  color: #d1d5db; /* Darker grey default */
   transition: color 220ms linear;
 }
 .about-lines.chars-active .char {
@@ -603,3 +482,35 @@ section {
 
 /* small helper to preserve spacing visual when splitting */
 .about-line .char.space { width: 0.36em; display: inline-block; }
+
+.about-images-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 65; /* Below the text (z-index: 70) */
+}
+
+.about-image {
+  position: absolute;
+  max-width: 400px;
+  width: 25vw;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.about-image-left {
+  left: 10vw; /* Final horizontal position */
+  top: 20vh; /* Final vertical position */
+}
+
+.about-image-right {
+  right: 10vw;
+  bottom: 20vh;
+  max-width: 300px;
+}
