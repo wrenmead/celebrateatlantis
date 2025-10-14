@@ -1,5 +1,55 @@
-import { animate } from 'motion'
+import { animate, scroll } from 'motion'
 import './style.css'
+
+document.addEventListener('DOMContentLoaded', () => {
+  const preloader = document.getElementById('preloader');
+  if (!preloader) return;
+
+  const text1 = document.getElementById('preloader-text-1');
+  const text2 = document.getElementById('preloader-text-2');
+  const text3 = document.getElementById('preloader-text-3');
+  const counter = document.getElementById('preloader-counter');
+  const slideUp = document.getElementById('preloader-slide-up');
+
+  const textAnimation = [
+    [text1, { opacity: [0, 1, 1, 0], transform: ['translateY(20px)', 'translateY(0px)', 'translateY(0px)', 'translateY(-20px)'] }, { duration: 1.2, at: 0 }],
+    [text2, { opacity: [0, 1, 1, 0], transform: ['translateY(20px)', 'translateY(0px)', 'translateY(0px)', 'translateY(-20px)'] }, { duration: 1.2, at: 0.8 }],
+    [text3, { opacity: [0, 1, 1, 0], transform: ['translateY(20px)', 'translateY(0px)', 'translateY(0px)', 'translateY(-20px)'] }, { duration: 1.2, at: 1.6 }],
+  ];
+
+  // Function to hide the preloader
+  const hidePreloader = () => {
+    preloader.classList.add('hidden');
+    document.body.style.overflow = ''; // Restore scrolling
+  };
+  
+  // Prevent scrolling while preloader is active
+  document.body.style.overflow = 'hidden';
+
+  // Run text animation
+  animate(textAnimation);
+
+  // Counter animation
+  animate(
+    (progress) => {
+      const percent = Math.floor(progress * 100);
+      counter.textContent = `${percent}%`;
+      counter.style.opacity = 1;
+    },
+    { duration: 2.8, delay: 0.2 }
+  ).finished.then(() => {
+    // When counter is done, slide up the blue screen
+    animate(slideUp, { y: ['100%', '0%'] }, { duration: 0.8, easing: [0.22, 1, 0.36, 1] })
+      .finished.then(() => {
+        // Wait for page to be fully loaded before hiding everything
+        if (document.readyState === 'complete') {
+          hidePreloader();
+        } else {
+          window.addEventListener('load', hidePreloader);
+        }
+      });
+  });
+});
 
 document.addEventListener('DOMContentLoaded', () => {
   // Smooth scroll for navigation links using Motion One when available
@@ -146,150 +196,116 @@ document.addEventListener('DOMContentLoaded', () => {
     animate(
       track,
       { transform: [`translateX(0)`, `translateX(-${totalWidth}px)`] },
-      { duration: 25, repeat: Infinity, ease: 'linear' }
+      { duration: 20, repeat: Infinity, ease: 'linear' }
     )
   })
 })
-
 
 // -- Scroll-driven hero shrink and about-section reveal/freeze/letter animation (reversible)
 document.addEventListener('DOMContentLoaded', () => {
   const hero = document.querySelector('.hero')
   const heroInner = document.querySelector('.hero-inner')
-  const aboutLinesEl = document.getElementById('about-lines')
-  const imgLeft = document.querySelector('.about-image-left');
-  const imgRight = document.querySelector('.about-image-right');
-  if (!hero || !heroInner || !aboutLinesEl || !imgLeft || !imgRight) return
+  if (!hero || !heroInner) return;
+  
+  const aboutSection = document.querySelector('.about-image-reveal-container');
+  const aboutImage = document.querySelector('.about-full-image');
+  const aboutBlueBg = document.querySelector('.about-blue-bg');
+  const aboutLogo = document.querySelector('.about-logo-reveal');
 
-  const lines = Array.from(aboutLinesEl.querySelectorAll('.about-line'))
+  if (aboutSection && aboutImage && aboutBlueBg && aboutLogo) {
+    // The container is 400vh, and the section is sticky for 300vh of scrolling.
+    // We will sequence the animations within that sticky period. The offsets are
+    // based on the container's scroll progress.
 
-  // Split each line into per-character spans for later letter animation
-  lines.forEach(line => {
-    const text = line.textContent.trim()
-    line.textContent = ''
-    for (const ch of text) {
-      const span = document.createElement('span')
-      span.className = ch === ' ' ? 'char space' : 'char'
-      span.textContent = ch
-      line.appendChild(span)
-    }
-  })
+    // 1. The initial image slides in from the bottom of the viewport.
+    // This ensures it doesn't overlap with the hero section.
+    // This animation takes place over the first 1/4 of the container's scroll distance.
+    scroll(
+      animate(aboutImage, { y: ['100vh', '0vh'] }), {
+        target: aboutSection,
+        offset: ["start end", "25% start"]
+      }
+    );
 
-  const allChars = Array.from(aboutLinesEl.querySelectorAll('.char'))
-  const totalChars = allChars.length
+    // 2. The blue background slides in from the bottom.
+    // This happens after the image is sticky, from 25% to 50% of the container's scroll.
+    scroll(
+      animate(aboutBlueBg, { y: ['100%', '0%'] }), {
+        target: aboutSection,
+        offset: ["25% start", "50% start"]
+      }
+    );
 
-  let heroHeight = hero.offsetHeight
-  let aboutSectionTop = hero.offsetTop + heroHeight
-  const aboutFillDuration = window.innerHeight * 0.75; // Scroll distance for text to fill
-  const aboutHoldDuration = window.innerHeight * 0.25; // Hold everything in place
-  const aboutImageExitDuration = window.innerHeight * 0.5; // Scroll distance for images to exit
-  const aboutTextExitDuration = window.innerHeight * 0.5; // Scroll distance for text to exit
-
-  function recalc() {
-    heroHeight = hero.offsetHeight
-    aboutSectionTop = hero.offsetTop + heroHeight
-    // Note: Durations are now constants, but you could recalculate them here if needed
-  }
-  window.addEventListener('resize', recalc)
-  recalc()
-
-  let ticking = false
-  function onScroll() {
-    if (ticking) return
-    window.requestAnimationFrame(updateFromScroll)
-    ticking = true
-  }
-
-  function clamp(v, a=0, b=1){ return Math.max(a, Math.min(b, v)) }
-
-  // Easing function for a smoother animation
-  const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
-
-  function updateFromScroll(){
-    ticking = false
-    const scrollY = window.scrollY || window.pageYOffset
-    const viewportHeight = window.innerHeight
-
-    // --- Phase 1: Hero shrink and About section reveal ---
-    const heroShrinkProgress = clamp(scrollY / (heroHeight * 0.4), 0, 1)
-    const scale = 1 - (0.55 * heroShrinkProgress)
-    const ty = - (heroHeight * 0.35 * heroShrinkProgress)
-    heroInner.style.transform = `translateY(${ty}px) scale(${scale})`
-
-    const revealCount = Math.floor(heroShrinkProgress * lines.length + 0.0001)
-    lines.forEach((ln, i) => {
-      ln.classList.toggle('revealed', i < revealCount)
-    })
-
-    // --- Phase 2 & 3: Sticky positioning and letter-by-letter fill ---
-    const aboutLinesHeight = aboutLinesEl.offsetHeight
-    const stickyStart = aboutSectionTop - (viewportHeight - aboutLinesHeight) / 2;
-    const fillEnd = stickyStart + aboutFillDuration;
-    const holdEnd = fillEnd + aboutHoldDuration;
-    const imageExitEnd = holdEnd + aboutImageExitDuration;
-    const textExitEnd = imageExitEnd + aboutTextExitDuration;
-
-    let fillProgress = 0;
-    let exitProgress = 0;
-
-    if (scrollY < stickyStart) {
-      // --- Not sticky yet ---
-      aboutLinesEl.classList.remove('fixed-about');
-      fillProgress = 0;
-
-    } else if (scrollY >= stickyStart && scrollY < fillEnd) {
-      // --- Phase 2: Sticky and filling text/images ---
-      aboutLinesEl.classList.add('fixed-about');
-      aboutLinesEl.style.top = `${(viewportHeight - aboutLinesHeight) / 2}px`;
-      fillProgress = clamp((scrollY - stickyStart) / aboutFillDuration, 0, 1);
-
-    } else if (scrollY >= fillEnd && scrollY < textExitEnd) {
-      // --- Phase 3 & 4: Holding and then exiting ---
-      aboutLinesEl.classList.add('fixed-about');
-      aboutLinesEl.style.top = `${(viewportHeight - aboutLinesHeight) / 2}px`;
-      fillProgress = 1;
-      exitProgress = clamp((scrollY - holdEnd) / (textExitEnd - holdEnd), 0, 1);
-
-    } else {
-      // --- Scrolled past, un-stick ---
-      aboutLinesEl.classList.remove('fixed-about');
-      fillProgress = 1;
-      exitProgress = 1;
-    }
-
-    // --- Animate Images In/Out ---
-    const leftImageEnterProgress = easeOutCubic(clamp(fillProgress * 1.5, 0, 1));
-    const leftImageExitProgress = easeOutCubic(clamp(exitProgress * 2.0, 0, 1)); // Exits twice as fast
-    const leftImageTranslateY = (1 - leftImageEnterProgress) * 50 + (leftImageExitProgress * -50);
-    imgLeft.style.opacity = leftImageEnterProgress - leftImageExitProgress;
-    imgLeft.style.transform = `translateY(${leftImageTranslateY}vh)`;
-
-    const rightImageEnterDelay = 0.4;
-    const rightImageExitDelay = 0.2; // Slight delay on exit
-    const rightImageEnterProgress = easeOutCubic(clamp((fillProgress - rightImageEnterDelay) / (1 - rightImageEnterDelay), 0, 1));
-    const rightImageExitProgress = easeOutCubic(clamp((exitProgress - rightImageExitDelay) / (1 - rightImageExitDelay), 0, 1));
-    const rightImageTranslateY = (1 - rightImageEnterProgress) * 40 + (rightImageExitProgress * -40);
-    imgRight.style.opacity = rightImageEnterProgress - rightImageExitProgress;
-    imgRight.style.transform = `translateY(${rightImageTranslateY}vh)`;
-
-    // --- Animate Text Fill In/Out ---
-    const textExitDelay = 0.5; // Text starts to reverse after images are mostly gone
-    const textExitProgress = clamp((exitProgress - textExitDelay) / (1 - textExitDelay), 0, 1);
-    const fillCount = Math.floor(totalChars * (fillProgress - textExitProgress));
-    allChars.forEach((ch, i) => {
-      ch.style.color = (i < fillCount) ? '#000' : '#d1d5db' /* Darker grey */
+    // 3. The logo fades in after the blue background is in place.
+    // It also moves slightly down and to the right.
+    // This happens from 50% to 75%, leaving a long pause until the section unsticks at 100%.
+    scroll(animate(aboutLogo, { opacity: [0, 1] }), {
+      target: aboutSection,
+      offset: ["50% start", "75% start"],
     });
 
-    // --- Animate Text Block Out ---
-    const textBlockExitDelay = 0.7; // Text block slides up at the very end
-    const textBlockExitProgress = easeOutCubic(clamp((exitProgress - textBlockExitDelay) / (1 - textBlockExitDelay), 0, 1));
-    const textBlockTranslateY = textBlockExitProgress * -50;
-    aboutLinesEl.style.transform = `translateX(-50%) translateY(${textBlockTranslateY}vh)`;
+    // 4. The blue background fades to green as the user scrolls away.
+    // This now starts earlier, from 60% to 90% of the container's scroll.
+    scroll(animate(aboutBlueBg, { backgroundColor: ['#005baa', '#41ad49'] }), {
+      target: aboutSection,
+      offset: ["60% start", "90% start"]
+    });
   }
 
-  window.addEventListener('scroll', onScroll, { passive: true })
-  // initial update
-  updateFromScroll()
+  // "Legacy of Pride" sticky text section animation
+  const textStickyContainer = document.querySelector('.text-sticky-container');
+  if (textStickyContainer) {
+    const contentToFade = textStickyContainer.querySelectorAll('.text-fade-in-body, .contact-button-wrap');
+    const image1 = textStickyContainer.querySelector('.scrolling-image.image-1');
+    const image2 = textStickyContainer.querySelector('.scrolling-image.image-2');
+    
+    // Animate all body paragraphs to fade in as the section becomes sticky
+    scroll(animate(contentToFade, { opacity: [0, 1] }), { target: textStickyContainer, offset: ["start start", "25% start"] });
+
+    // Animate images scrolling from bottom to top
+    scroll(animate(image1, { y: ['100vh', '-100vh'] }), {
+      target: textStickyContainer,
+      offset: ["10% start", "end start"]
+    });
+    scroll(animate(image2, { y: ['120vh', '-80vh'] }), { // Stagger the second image
+      target: textStickyContainer,
+      offset: ["30% start", "end start"]
+    });
+  }
+
+  // Task Team section animation
+  const taskTeamContainer = document.querySelector('.task-team-sticky-container');
+  if (taskTeamContainer) {
+    const section = taskTeamContainer.querySelector('.task-team-section');
+    const content = taskTeamContainer.querySelectorAll('.task-team-left, .task-team-right');
+    const bg = taskTeamContainer.querySelector('.task-team-bg');
+
+    // 1. Fade in content
+    // This now happens as the section scrolls into view, before it becomes sticky.
+    scroll(animate(content, { opacity: [0, 1] }), { target: taskTeamContainer, offset: ["start end", "start 70%"] });
+
+    // 2. Fade background to blue and text to white
+    // This starts once the section is sticky.
+    scroll(animate(bg, { backgroundColor: ['#ffffff', '#005baa'] }), {
+      target: taskTeamContainer,
+      offset: ["start start", "25% start"]
+    });
+
+    // The text color changes to white at the same time as the background fades to blue.
+    scroll(animate(section, { color: ['#000000', '#ffffff'] }), { target: taskTeamContainer, offset: ["start start", "30% start"] });
+
+    // 3. Fade background from blue to green
+    scroll(animate(bg, { backgroundColor: ['#005baa', '#41ad49'] }), { target: taskTeamContainer, offset: ["60% start", "85% start"] });
+  }
+
+  // Hero shrink animation
+  scroll(
+    animate(heroInner, {
+      scale: [1, 0.45],
+      y: [0, -hero.offsetHeight * 0.15]
+    }),
+    { target: hero, offset: ["start start", "end start"] }
+  );
 })
 
 
@@ -318,131 +334,87 @@ document.addEventListener('DOMContentLoaded', () => {
   }, { root: null, rootMargin: '-20% 0px -60% 0px', threshold: 0 })
 
   modules.forEach(m => observer.observe(m))
+})
 
-  // (Sticky positioning is handled in CSS: .history-year { position: sticky; top: 10vh; })
+// --- New Simple Gallery Staggered Entrance & Lightbox ---
+document.addEventListener('DOMContentLoaded', () => {
+  // --- New Simple Gallery Staggered Entrance ---
+  const galleryItems = document.querySelectorAll('.gallery-item');
+  if (galleryItems.length === 0) return;
 
-  // Gallery wipe-in observer
-  const gallery = document.getElementById('gallery')
-    if (gallery) {
-    const wipes = Array.from(gallery.querySelectorAll('.wipe'))
-    const gObserver = new IntersectionObserver((entries, obs) => {
-      entries.forEach(entry => {
-        const el = entry.target
-        if (entry.isIntersecting) {
-          // if we've already revealed this item, skip
-          if (el.dataset.revealed) return
-          el.dataset.revealed = '1'
-          // reveal with a slight stagger based on position among wipes
-          const i = wipes.indexOf(el)
-          setTimeout(() => el.classList.add('visible'), Math.max(0, i) * 180)
-          // stop observing this element — we only want the entrance once
-          obs.unobserve(el)
-        }
-      })
-    }, { root: null, rootMargin: '-10% 0px -20% 0px', threshold: 0 })
-    wipes.forEach(w => gObserver.observe(w))
-  }
-
-  // Lightbox / shared-layout animation
-  const lightbox = document.getElementById('lightbox')
-  const lightboxInner = lightbox && lightbox.querySelector('.lightbox-inner')
-  const closeBtn = lightbox && lightbox.querySelector('.lightbox-close')
-  const thumbs = Array.from(document.querySelectorAll('.gallery-thumb'))
-
-  function rectToStyle(r) {
-    return `position:fixed;left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px;transform:none;`;
-  }
-
-  thumbs.forEach(thumb => {
-    thumb.addEventListener('click', (e) => {
-      const img = e.currentTarget
-      const src = img.src
-      const rect = img.getBoundingClientRect()
-
-      const clone = img.cloneNode(true)
-      clone.classList.remove('gallery-thumb')
-      Object.assign(clone.style, {
-        position: 'fixed',
-        left: `${rect.left}px`,
-        top: `${rect.top}px`,
-        width: `${rect.width}px`,
-        height: `${rect.height}px`,
-        zIndex: 2100,
-      })
-
-      document.body.appendChild(clone)
-
-      // show overlay (dark backdrop)
-      lightbox.classList.add('open')
-      lightbox.setAttribute('aria-hidden', 'false')
-
-      // compute destination size based on viewport while preserving aspect ratio
-      const vw = window.innerWidth
-      const vh = window.innerHeight
-      const maxW = Math.round(vw * 0.92)
-      const maxH = Math.round(vh * 0.86)
-      const aspect = (rect.width && rect.height) ? (rect.width / rect.height) : 1
-      let targetW = Math.min(maxW, Math.round(maxH * aspect))
-      let targetH = Math.round(targetW / aspect)
-      if (targetH > maxH) {
-        targetH = maxH
-        targetW = Math.round(targetH * aspect)
+  const galleryObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach((entry, index) => {
+      if (entry.isIntersecting) {
+        // Apply a staggered delay using a CSS variable
+        const delay = index * 100; // 100ms stagger
+        entry.target.style.transitionDelay = `${delay}ms`;
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target); // Animate only once
       }
-      const targetLeft = Math.round((vw - targetW) / 2)
-      const targetTop = Math.round((vh - targetH) / 2)
+    });
+  }, { threshold: 0.1 });
 
-      animate(clone, {
-        left: `${targetLeft}px`,
-        top: `${targetTop}px`,
-        width: `${targetW}px`,
-        height: `${targetH}px`,
-      }, {
-        duration: 0.5,
-        easing: [0.4, 0, 0.2, 1]
-      }).finished.then(() => {
-        clone.remove();
-        lightboxInner.innerHTML = `<img src="${src}" alt="${img.alt || ''}" style="max-width: 92vw; max-height: 86vh; width: auto; height: auto; border-radius: 6px; box-shadow: 0 20px 60px rgba(2,6,23,0.45);">`;
-      });
-    })
-  })
+  galleryItems.forEach(item => galleryObserver.observe(item));
 
-  function closeLightbox() {
-    // If there's a final image visible, animate it back to its thumbnail (shared-layout reverse)
-    const finalImg = lightboxInner.querySelector('img')
-    if (finalImg) {
-      const src = finalImg.src
-      // find matching thumb (first match)
-      const targetThumb = thumbs.find(t => t.src === src)
-      if (!targetThumb) return;
+  // --- Lightbox functionality ---
+  const lightbox = document.getElementById('lightbox');
+  const lightboxContent = lightbox.querySelector('.lightbox-content');
+  const lightboxClose = lightbox.querySelector('.lightbox-close');
 
-      const startRect = finalImg.getBoundingClientRect();
-      const endRect = targetThumb.getBoundingClientRect();
-      finalImg.remove();
+  if (!lightbox || !lightboxContent || !lightboxClose) return;
 
-      const clone = targetThumb.cloneNode(true);
-      clone.classList.remove('gallery-thumb');
-      Object.assign(clone.style, {
-        position: 'fixed',
-        left: `${startRect.left}px`,
-        top: `${startRect.top}px`,
-        width: `${startRect.width}px`,
-        height: `${startRect.height}px`,
-        zIndex: 2100,
-      });
-      document.body.appendChild(clone);
+  const openLightbox = (src) => {
+    lightboxContent.setAttribute('src', src);
+    lightbox.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
 
-      animate(clone, { left: `${endRect.left}px`, top: `${endRect.top}px`, width: `${endRect.width}px`, height: `${endRect.height}px` }, { duration: 0.4, easing: 'easeOut' }).finished.then(() => {
-        clone.remove();
-      });
-    }
-    lightbox.classList.remove('open')
-    lightbox.setAttribute('aria-hidden', 'true')
-  }
+  const closeLightbox = () => {
+    lightbox.classList.remove('open');
+    document.body.style.overflow = '';
+    // Delay clearing the src to avoid image disappearing during fade-out
+    setTimeout(() => lightboxContent.setAttribute('src', ''), 300);
+  };
 
-  if (closeBtn) closeBtn.addEventListener('click', closeLightbox)
-  if (lightbox) lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox() })
+  galleryItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.preventDefault();
+      openLightbox(item.href);
+    });
+  });
+
+  lightboxClose.addEventListener('click', closeLightbox);
+  // Close when clicking the background overlay
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) closeLightbox();
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
 });
 
+// --- Contact Section Entrance Animation ---
+document.addEventListener('DOMContentLoaded', () => {
+  const contactSection = document.getElementById('contact');
+  if (!contactSection) return;
+
+  const bgImage = contactSection.querySelector('.contact-bg-image');
+  const bgOverlay = contactSection.querySelector('.contact-bg-overlay');
+  const children = contactSection.querySelectorAll('.anim-child');
+
+  // 1. Animate the background image and overlay sliding in from the bottom.
+  const backgroundAnimation = { y: ['100%', '0%'] };
+  const backgroundOptions = {
+    target: contactSection,
+    offset: ["start 80%", "start 40%"]
+  };
+  scroll(animate(bgImage, backgroundAnimation), backgroundOptions);
+  scroll(animate(bgOverlay, backgroundAnimation), backgroundOptions);
+
+  // 2. Fade in the content after the background is in place.
+  scroll(animate(children, { opacity: [0, 1], y: ['20px', '0px'] }), {
+    target: contactSection,
+    offset: ["start 50%", "start 20%"]
+  });
+});
 
 // Contact form AJAX submit (progressive enhancement)
 document.addEventListener('DOMContentLoaded', () => {
